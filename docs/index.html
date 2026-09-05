@@ -1,0 +1,113 @@
+<!--
+  PixelsMCP pricing page — Stripe's hosted Pricing Table embedded on a page you control.
+  Replaces the Wix storefront idea entirely: this deploys free via GitHub Pages in the SAME repo
+  already used for revocations.pxrl (see RUNBOOK_GITOPS.md), so there is nothing to pay for and
+  nothing outside git.
+
+  ONE-TIME SETUP (only you can do this part — Stripe does not expose an API to create a Pricing
+  Table, only the Dashboard does):
+    1. Stripe Dashboard -> Product catalog -> Pricing tables -> Create pricing table.
+    2. Add the four products setup_stripe.py already created: Indie, Personal, Studio (per seat),
+       Perpetual. Turn on the 14-day trial for the three subscriptions.
+    3. Save. Stripe shows you a `pricing-table-id` (starts "prctbl_...") and your account's
+       publishable key (starts "pk_..." — the PUBLIC key, safe to put in this page; never the
+       secret "sk_..." key).
+    4. Paste both into the two placeholders below (search for "REPLACE_ME").
+
+  DEPLOY (GitHub Pages, free):
+    1. Put this file (and this folder) into the pixelsmcp-licensing repo, e.g. at
+       `docs/pricing/index.html` (or a `gh-pages` branch — either works with Pages).
+    2. Repo Settings -> Pages -> Build and deployment -> Deploy from a branch -> pick the branch
+       and the `/docs` folder (or root, matching wherever you placed it).
+    3. GitHub gives you a URL like `https://tinypixelsdev.github.io/pixelsmcp-licensing/pricing/`.
+    4. Set that URL as `LicenseStoreUrl` in the plugin's PixelsMCPPluginSettings before packaging
+       (Source/PixelsMCP/Private/PixelsMCPPluginSettings.h) — that's what the panel's
+       "Get a licence" / "Renew" buttons open.
+
+  This page changes nothing about fulfilment: buyers still complete Stripe Checkout, you still get
+  the email + machine id, you still sign and send a PXM- key by hand per RUNBOOK_GITOPS.md. This is
+  only the storefront the buyer sees before that happens.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PixelsMCP — Pricing</title>
+<style>
+  :root {
+    --ground: #0e0f11;
+    --ink: #c9cfd7;
+    --muted: #8a93a0;
+    --bright: #ecfff3;
+    --orange: #f58726;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font: 15px/1.6 -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 56px 20px 80px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  .brand .mark { color: var(--orange); font-weight: 800; }
+  .brand .name { font-weight: 700; font-size: 20px; letter-spacing: 0.01em; }
+  h1 {
+    text-align: center;
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 18px 0 10px;
+    color: #eef1f5;
+  }
+  p.sub {
+    text-align: center;
+    color: var(--muted);
+    max-width: 56ch;
+    margin: 0 auto 44px;
+  }
+  p.sub b { color: var(--ink); }
+  .table-wrap { min-height: 420px; }
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 48px;
+  }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand"><span class="mark">◆</span><span class="name">PixelsMCP</span></div>
+    <h1>Pick a plan</h1>
+    <p class="sub">
+      Every tier is <b>bring your own AI key</b> — no credits, no expiry. You can inspect any
+      project for free; a plan unlocks editing, generation and team seats.
+    </p>
+
+    <div class="table-wrap">
+      <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+      <stripe-pricing-table
+        pricing-table-id="REPLACE_ME_PRICING_TABLE_ID"
+        publishable-key="REPLACE_ME_PUBLISHABLE_KEY">
+      </stripe-pricing-table>
+    </div>
+
+    <footer>
+      Already have a key? Activate it from <b>PixelsMCP → Licence</b> inside Unreal Editor.
+    </footer>
+  </div>
+</body>
+</html>
