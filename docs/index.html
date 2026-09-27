@@ -7,8 +7,10 @@
   ONE-TIME SETUP (only you can do this part — Stripe does not expose an API to create a Pricing
   Table, only the Dashboard does):
     1. Stripe Dashboard -> Product catalog -> Pricing tables -> Create pricing table.
-    2. Add the four products setup_stripe.py already created: Indie, Personal, Studio (per seat),
-       Perpetual. Turn on the 14-day trial for the three subscriptions.
+    2. Add the three subscription products setup_stripe.py created: Indie, Personal, Studio (per
+       seat). Turn on the 14-day trial for each. NOT Perpetual: a pricing table cannot mix a
+       one-time price with recurring ones, so Perpetual has its own tab on this page, whose Buy
+       button is the Perpetual Payment Link setup_stripe.py prints (search REPLACE_ME_PERPETUAL_LINK).
     3. Save. Stripe shows you a `pricing-table-id` (starts "prctbl_...") and your account's
        publishable key (starts "pk_..." — the PUBLIC key, safe to put in this page; never the
        secret "sk_..." key).
@@ -79,6 +81,62 @@
   }
   p.sub b { color: var(--ink); }
   .table-wrap { min-height: 420px; }
+
+  /* Subscriptions | Perpetual. Stripe's pricing table cannot hold a one-time price next to
+     recurring ones, so Perpetual is its own panel with a Payment Link, outside the embed. */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    width: max-content;
+    margin: 0 auto 28px;
+    padding: 4px;
+    border: 1px solid #2c2f36;
+    border-radius: 10px;
+    background: #16181c;
+  }
+  .tabs button {
+    border: 0;
+    border-radius: 7px;
+    padding: 9px 22px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .tabs button[aria-selected="true"] { background: #cf7200; color: #fff; }
+  .tabs button:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  .perp {
+    max-width: 420px;
+    margin: 8px auto 0;
+    padding: 32px 30px 30px;
+    border: 1px solid #3a3d47;
+    border-radius: 12px;
+    background: #22232b;
+  }
+  .perp h2 { margin: 0 0 6px; font-size: 22px; color: #eef1f5; }
+  .perp .blurb { margin: 0 0 22px; color: var(--ink); font-size: 14px; }
+  .perp .price { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .perp .price b { font-size: 42px; color: #fff; letter-spacing: -0.01em; }
+  .perp .price span { color: var(--ink); font-size: 14px; line-height: 1.2; }
+  .perp ul { margin: 18px 0 24px; padding-left: 18px; color: var(--ink); font-size: 14px; }
+  .perp li { margin: 4px 0; }
+  .perp a.buy {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    border-radius: 6px;
+    background: #cf7200;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .perp a.buy:hover { background: #e07d00; }
+  .perp a.buy.pending { background: #3a3d47; color: var(--muted); pointer-events: none; }
+  .perp .note { margin: 14px 0 0; color: var(--muted); font-size: 12.5px; text-align: center; }
   footer {
     text-align: center;
     color: var(--muted);
@@ -97,7 +155,12 @@
       project for free; a plan unlocks editing, generation and team seats.
     </p>
 
-    <div class="table-wrap">
+    <div class="tabs" role="tablist" aria-label="Plan type">
+      <button role="tab" id="tab-subs" aria-controls="panel-subs" aria-selected="true">Subscriptions</button>
+      <button role="tab" id="tab-perp" aria-controls="panel-perp" aria-selected="false">Perpetual</button>
+    </div>
+
+    <div class="table-wrap" id="panel-subs" role="tabpanel" aria-labelledby="tab-subs">
       <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
       <stripe-pricing-table
         pricing-table-id="prctbl_1UCH5vIaCWpAsUvXhmzymfDB"
@@ -105,8 +168,64 @@
       </stripe-pricing-table>
     </div>
 
+    <div class="table-wrap" id="panel-perp" role="tabpanel" aria-labelledby="tab-perp" hidden>
+      <div class="perp">
+        <h2>PixelsMCP Perpetual</h2>
+        <p class="blurb">Everything in Studio, yours to keep. Pay once, no subscription.</p>
+        <div class="price"><b>$1,200</b><span>one-time<br>per seat</span></div>
+        <ul>
+          <li>Every tool, including power tools and generation</li>
+          <li>Never expires &mdash; includes 1 year of updates</li>
+          <li>Locked to one machine; one purchase = one seat</li>
+          <li>Bring your own AI key</li>
+        </ul>
+        <!-- Payment Link printed by setup_stripe.py for "PixelsMCP Perpetual" (one-time). -->
+        <a class="buy" href="REPLACE_ME_PERPETUAL_LINK">Buy</a>
+        <p class="note">You'll be asked for your Machine ID at checkout &mdash; copy it from
+          PixelsMCP &rarr; Licence in Unreal Editor.</p>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        var tabs = [document.getElementById("tab-subs"), document.getElementById("tab-perp")];
+        function show(tab) {
+          tabs.forEach(function (t) {
+            var on = t === tab;
+            t.setAttribute("aria-selected", on ? "true" : "false");
+            t.tabIndex = on ? 0 : -1;
+            document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+          });
+          try { history.replaceState(null, "", tab.id === "tab-perp" ? "#perpetual" : location.pathname); } catch (e) {}
+        }
+        tabs.forEach(function (t, i) {
+          t.addEventListener("click", function () { show(t); });
+          t.addEventListener("keydown", function (e) {
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+              var next = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+              show(next); next.focus();
+            }
+          });
+        });
+        if (location.hash === "#perpetual") show(tabs[1]);
+
+        // Until setup_stripe.py's Perpetual Payment Link is pasted in, show the card without a
+        // live checkout rather than a button that goes nowhere.
+        var buy = document.querySelector(".perp a.buy");
+        if (buy && buy.getAttribute("href").indexOf("REPLACE_ME") === 0) {
+          buy.classList.add("pending");
+          buy.removeAttribute("href");
+          buy.setAttribute("aria-disabled", "true");
+          buy.textContent = "Checkout coming soon";
+        }
+      })();
+    </script>
+
     <footer>
       Already have a key? Activate it from <b>PixelsMCP → Licence</b> inside Unreal Editor.
+      <br>
+      10+ seats for one studio? <a href="mailto:[SUPPORT EMAIL]">Contact us</a> for a bulk order —
+      Checkout above is one seat per purchase.
     </footer>
   </div>
 </body>
