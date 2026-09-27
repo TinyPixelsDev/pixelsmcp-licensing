@@ -80,8 +80,6 @@
   }
   .tabs button[aria-selected="true"] { background: var(--btn); color: #fff; }
   .tabs button:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
-  .tabs .save { font-size: 11.5px; font-weight: 700; margin-left: 6px; color: #7fd49a; }
-  .tabs button[aria-selected="true"] .save { color: #fff; opacity: 0.85; }
 
   .panel { background: var(--panel); border-radius: 14px; padding: 36px 28px; }
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: stretch; }
@@ -93,7 +91,6 @@
   @media (max-width: 520px) {
     .tabs { width: 100%; }
     .tabs button { flex: 1 1 0; min-width: 0; padding: 9px 6px; }
-    .tabs .save { display: none; }
   }
 
   .card {
@@ -153,7 +150,7 @@
 
     <div class="tabs" role="tablist" aria-label="Billing">
       <button role="tab" id="tab-monthly" data-period="monthly" aria-controls="plans" aria-selected="true">Monthly</button>
-      <button role="tab" id="tab-annual" data-period="annual" aria-controls="plans" aria-selected="false">Yearly<span class="save">up to −25%</span></button>
+      <button role="tab" id="tab-annual" data-period="annual" aria-controls="plans" aria-selected="false">Yearly</button>
       <button role="tab" id="tab-perpetual" data-period="perpetual" aria-controls="plans" aria-selected="false">Perpetual</button>
     </div>
 
