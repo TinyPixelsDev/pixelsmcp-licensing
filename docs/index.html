@@ -180,7 +180,8 @@
         indie:     { monthly: "https://buy.stripe.com/test_9B628r8sW1nX50H3CE6c00b",
                      annual:  "https://buy.stripe.com/test_6oU3cvaB46Ih64L6OQ6c00c" },
         personal:  { monthly: "https://buy.stripe.com/test_aFafZh24yaYx50H7SU6c00d",
-                     annual:  "https://buy.stripe.com/test_4gM9ATgZs1nXfFla126c00e" },
+                     annual:  "https://buy.stripe.com/test_4gM9ATgZs1nXfFla126c00e",
+                     trial_zero: "https://buy.stripe.com/test_7sY6oHfVo5Edal18WY6c00i" },
         studio:    { monthly: "https://buy.stripe.com/test_4gM9ATgZsd6F78Pc9a6c00f",
                      annual:  "https://buy.stripe.com/test_8x2eVdbF87Ml8cTa126c00g" },
         perpetual: { one_time: "https://buy.stripe.com/test_eVqdR924y7Ml78P7SU6c00h" }
@@ -189,7 +190,8 @@
         indie:     { monthly: "https://buy.stripe.com/9B628teFe8jpbRW0Cf4ko00",
                      annual:  "https://buy.stripe.com/bJefZjdBa0QX4pu70D4ko01" },
         personal:  { monthly: "https://buy.stripe.com/fZucN7bt28jpf4898L4ko02",
-                     annual:  "https://buy.stripe.com/8x214pdBa0QXf48et54ko03" },
+                     annual:  "https://buy.stripe.com/8x214pdBa0QXf48et54ko03",
+                     trial_zero: "https://buy.stripe.com/test_7sY6oHfVo5Edal18WY6c00i" },
         studio:    { monthly: "https://buy.stripe.com/28E3cx8gQ2Z5bRW4Sv4ko04",
                      annual:  "https://buy.stripe.com/dRm00lbt20QX1di3Or4ko05" },
         perpetual: { one_time: "https://buy.stripe.com/4gM5kFcx6bvBcW0bgT4ko06" }
@@ -283,14 +285,20 @@
       SUBSCRIPTIONS.forEach(function (plan) {
         var annual = period === "annual";
         var per = plan.unit ? "per " + plan.unit : "";
+        var links = LINKS[plan.id] || {};
+        var zero = plan.id === "personal" && links.trial_zero;
         grid.appendChild(card({
           name: plan.name, blurb: plan.blurb, features: plan.features, featured: plan.popular,
-          amount: money(annual ? plan.annual / 12 : plan.monthly),
-          unit: per ? [per, "per month"] : ["per month"],
-          billed: annual ? "Billed " + money(plan.annual) + " yearly · save " + Math.round(100 - plan.annual / (plan.monthly * 12) * 100) + "%" : "",
-          cta: TRIAL_DAYS ? "Start " + TRIAL_DAYS + "-day free trial" : "Subscribe",
-          href: LINKS[plan.id][period],
-          note: TRIAL_DAYS ? "No charge until day " + (TRIAL_DAYS + 1) + ". Cancel anytime in the trial." : ""
+          amount: zero ? "$0" : money(annual ? plan.annual / 12 : plan.monthly),
+          unit: zero ? ["14 days"] : (per ? [per, "per month"] : ["per month"]),
+          billed: zero ? "Default Personal checkout. No subscription."
+            : (annual ? "Billed " + money(plan.annual) + " yearly · save " + Math.round(100 - plan.annual / (plan.monthly * 12) * 100) + "%" : ""),
+          cta: zero ? "Start 14-day Personal trial"
+            : (TRIAL_DAYS ? "Start " + TRIAL_DAYS + "-day free trial" : "Subscribe"),
+          href: zero ? links.trial_zero : links[period],
+          note: zero
+            ? "No charge. Paste your Machine ID from PixelsMCP → Licence. The key stops after 14 days."
+            : (TRIAL_DAYS ? "No charge until day " + (TRIAL_DAYS + 1) + ". Cancel anytime in the trial." : "")
         }));
       });
     }
