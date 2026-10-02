@@ -4,9 +4,9 @@
   WHY NOT STRIPE'S EMBEDDED PRICING TABLE (used until 2026-09-27)
   Its Monthly/Yearly toggle lives inside a Stripe iframe we cannot add to, and a pricing table cannot
   hold a one-time price next to recurring ones - so Perpetual could never sit in the same toggle.
-  Owning the cards gives one Monthly | Yearly | Perpetual control and moves unchanged to a real
-  domain later. Checkout, the required Machine ID field and fulfilment are unchanged: the Payment
-  Links are the ones setup_stripe.py creates.
+  Owning the cards gives one Monthly | Yearly | Perpetual control. The live page is
+  https://pixelsmcp.store/ . Checkout, the required Machine ID field and fulfilment are unchanged:
+  the Payment Links are the ones setup_stripe.py creates.
 
   KEEP IN STEP WITH setup_stripe.py
   Prices and copy below mirror its PLANS list. When PLANS changes, change PLANS here too. After
@@ -15,7 +15,8 @@
 
   DEPLOY
   This file is docs/index.html in the TinyPixelsDev/pixelsmcp-licensing repo (GitHub Pages, /docs).
-  Point the plugin's `LicenseStoreUrl` setting at the page URL - that's what the panel's
+  DNS for pixelsmcp.store points at GitHub Pages. www.pixelsmcp.store redirects to the apex.
+  Point the plugin's `LicenseStoreUrl` setting at https://pixelsmcp.store/ - that's what the panel's
   "Get a licence" / "Renew" buttons open.
 -->
 <!doctype html>
